@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101317">
+  <meta name="description" content="Jonathan Yandel composes original music for games, film, and animation.">
+  <title>Jonathan Yandel · Composer</title>
+  <link rel="preload" href="assets/hero.jpg" as="image">
+  <link rel="stylesheet" href="styles.css">
+  <script src="content.js" defer></script>
+  <script src="site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="hero" id="top">
+    <div class="site-header">
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="#music">Music</a></li>
+          <li><a href="#credits">Credits</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="hero-copy">
+      <h1>Jonathan Yandel</h1>
+      <p class="hero-subtitle">Music for Games and Visual Media</p>
+    </div>
+    <a class="hero-next" href="#music" aria-label="Scroll to Selected Music">
+      <svg width="24" height="14" viewBox="0 0 24 14" fill="none" aria-hidden="true">
+        <path d="m1 1 11 11L23 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <section class="section section-music" id="music" aria-labelledby="music-title">
+      <div class="section-grid">
+        <div class="section-heading">
+          <h2 id="music-title">Selected Music</h2>
+          <p>A small selection of original compositions.</p>
+        </div>
+        <div>
+          <ul class="track-list" role="list"></ul>
+          <noscript><p>Enable JavaScript to see the selected music and players.</p></noscript>
+          <template id="track-template">
+            <li class="track">
+              <div class="track-preview">
+                <img class="track-cover" alt="" width="128" height="105" loading="lazy" decoding="async">
+                <div class="track-content">
+                  <button class="track-play" type="button" disabled>
+                    <svg width="17" height="17" viewBox="0 0 17 17" aria-hidden="true">
+                      <path class="play-symbol" d="m3.5 6 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path class="close-symbol" d="m3.5 3.5 10 10m0-10-10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                  <div class="track-info">
+                    <p class="track-description"></p>
+                    <h3></h3>
+                  </div>
+                  <a class="track-source">SoundCloud <span>placeholder</span></a>
+                  <div class="track-timeline">
+                    <img src="assets/waveform.svg" alt="" width="520" height="28" loading="lazy">
+                    <span class="track-duration" hidden></span>
+                  </div>
+                </div>
+              </div>
+              <div class="track-player" hidden>
+                <a class="track-fallback">Listen on SoundCloud</a>
+              </div>
+            </li>
+          </template>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-credits" id="credits" aria-labelledby="credits-title">
+      <div class="section-grid">
+        <div class="section-heading">
+          <h2 id="credits-title">Selected Credits</h2>
+        </div>
+        <div class="credit-groups">
+          <div>
+            <h3>Games</h3>
+            <ul class="credits-list" role="list">
+              <li><strong><a data-credit="influx">InFlux</a></strong> — game soundtrack (Impromptu Games)</li>
+              <li><strong><a data-credit="songOfSeven">The Song of Seven</a></strong> — game soundtrack (Enlightened Games)</li>
+              <li><strong><a data-credit="vroom">VROOM</a></strong> — game soundtrack (Impromptu Games)</li>
+              <li><strong><a data-credit="stolenSteelVr">Stolen Steel VR</a></strong> — game soundtrack (Impromptu Games)</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Film &amp; Animation</h3>
+            <ul class="credits-list" role="list">
+              <li><strong><a data-credit="carCity">Car City</a></strong> — animation (Amuse Animation)</li>
+              <li><strong><a data-credit="aladdin">Aladdin &amp; The Genies</a></strong> — animation (Amuse Animation)</li>
+              <li><strong><a data-credit="cz918">CZ918</a></strong> — short film (Mel Crow)</li>
+              <li><strong><a data-credit="carmen">Carmen</a></strong> — short film (Mel Crow)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-about" id="about" aria-labelledby="about-title">
+      <div class="section-grid">
+        <div class="section-heading">
+          <h2 id="about-title">About</h2>
+        </div>
+        <p class="about-copy">Composer and multi-instrumentalist creating original music for games, film, and animation. With a background in game development and 3D art production, I bring both musical and production experience to collaborative projects.</p>
+        <img class="portrait" src="assets/portrait.webp" alt="Jonathan Yandel playing touch guitar"
+          width="675" height="540" loading="lazy" decoding="async">
+      </div>
+    </section>
+
+    <section class="section section-contact" id="contact" aria-labelledby="contact-title">
+      <div class="section-grid">
+        <div class="section-heading">
+          <h2 id="contact-title">Contact</h2>
+        </div>
+        <div class="contact-content">
+          <div>
+            <p>Available for select scoring projects</p>
+            <ul class="social-links" role="list" aria-label="Social profiles">
+              <li>
+                <a class="social-link" data-social="instagram" title="Instagram">
+                  <svg width="22" height="22" viewBox="0 0 24 24" role="img" aria-label="Instagram" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <rect x="3" y="3" width="18" height="18" rx="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="17.5" cy="6.7" r="1" fill="currentColor" stroke="none"/>
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a class="social-link" data-social="bandcamp" title="Bandcamp">
+                  <svg width="22" height="22" viewBox="0 0 24 24" role="img" aria-label="Bandcamp" fill="currentColor">
+                    <path d="M7 6h16l-6 12H1z"/>
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a class="social-link" data-social="soundcloud" title="SoundCloud">
+                  <svg width="22" height="22" viewBox="0 0 24 24" role="img" aria-label="SoundCloud" fill="currentColor">
+                    <path d="M11 7.8a5.1 5.1 0 0 1 8.2 3.3 3.6 3.6 0 1 1 .3 7.2H11z"/>
+                    <path d="M2 13.9v2.7m2.5-4.3v5.3M7 10.9v7M9.5 9v8.9" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+                  </svg>
+                </a>
+              </li>
+              <li>
+                <a class="social-link" data-social="threads" title="Threads">
+                  <svg width="22" height="22" viewBox="0 0 24 24" role="img" aria-label="Threads" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.5 8.8C19.4 4.8 16.7 3 12 3c-5.4 0-8.1 3.3-8.1 9s2.7 9 8.1 9c4.4 0 7.6-2.3 7.6-5.6 0-3.1-2.9-4.6-6.5-4.6-3.1 0-4.7 1.4-4.7 3.3 0 1.5 1.3 2.6 2.9 2.6 2.7 0 4.5-2.3 4.5-5.5 0-3-1.3-4.6-3.6-4.6-1.4 0-2.6.6-3.2 1.6"/>
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <a class="contact-link" role="link" aria-disabled="true">
+            <svg width="18" height="14" viewBox="0 0 18 14" fill="none" aria-hidden="true">
+              <rect x="1" y="1" width="16" height="12" rx="1" stroke="currentColor" stroke-width="1.25"/>
+              <path d="m1.5 2 7.5 6L16.5 2" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+            </svg>
+            Get in touch
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
