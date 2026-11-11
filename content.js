@@ -56,10 +56,10 @@ const portfolioContent = {
     carmen: "",
   },
   socialLinks: {
-    instagram: "",
-    bandcamp: "",
-    soundcloud: "",
-    threads: "",
+    instagram: "https://www.instagram.com/jonathanyandelmusic/",
+    bandcamp: "https://jonathanyandel.bandcamp.com/",
+    soundcloud: "https://soundcloud.com/jonathanyandel",
+    threads: "https://www.threads.com/@jonathanyandelmusic",
   },
   contactEmail: "",
 };
