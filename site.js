@@ -33,6 +33,7 @@ async function loadTrackArtwork(cover, trackUrl) {
 }
 
 let widgetApiPromise;
+let activeWidget;
 
 function loadWidgetApi() {
   if (widgetApiPromise) return widgetApiPromise;
@@ -85,6 +86,18 @@ function connectPlayer(row, track) {
   let iframe;
   let loading = false;
   let timeout;
+  let playRetry;
+
+  function requestPlayback() {
+    activeWidget = widget;
+    widget.play();
+    // Safari can ignore the first command while the initial stream opens.
+    playRetry = setTimeout(() => {
+      if (widget && activeWidget === widget && play.getAttribute("aria-pressed") !== "true") {
+        widget.play();
+      }
+    }, 750);
+  }
 
   function setPlaying(playing) {
     play.setAttribute("aria-pressed", String(playing));
@@ -94,10 +107,13 @@ function connectPlayer(row, track) {
   function finishLoading() {
     clearTimeout(timeout);
     loading = false;
+    play.disabled = false;
     play.removeAttribute("aria-busy");
   }
 
   function failPlayback() {
+    clearTimeout(playRetry);
+    if (activeWidget === widget) activeWidget = null;
     finishLoading();
     if (widget) {
       Object.values(window.SC.Widget.Events).forEach(event => widget.unbind(event));
@@ -109,19 +125,13 @@ function connectPlayer(row, track) {
     status.textContent = `Unable to play ${track.title}. Try again or use the SoundCloud link.`;
   }
 
-  play.disabled = false;
   setPlaying(false);
 
-  play.addEventListener("click", async () => {
-    if (loading) return;
-    if (widget) {
-      widget.toggle();
-      return;
-    }
-
+  async function preparePlayer(playWhenReady = false) {
     loading = true;
+    play.disabled = true;
     play.setAttribute("aria-busy", "true");
-    status.textContent = `Loading ${track.title}.`;
+    play.setAttribute("aria-label", `Loading ${track.title}`);
 
     try {
       const soundcloud = await loadWidgetApi();
@@ -132,7 +142,7 @@ function connectPlayer(row, track) {
       if (!playerUrl.searchParams.has("url")) {
         playerUrl.searchParams.set("url", trackUrl.href);
       }
-      playerUrl.searchParams.set("auto_play", "true");
+      playerUrl.searchParams.set("auto_play", "false");
       playerUrl.searchParams.set("single_active", "true");
 
       iframe = document.createElement("iframe");
@@ -145,19 +155,41 @@ function connectPlayer(row, track) {
       widget = soundcloud.Widget(iframe);
       timeout = setTimeout(failPlayback, 20000);
 
-      widget.bind(soundcloud.Widget.Events.READY, () => widget.play());
+      widget.bind(soundcloud.Widget.Events.READY, () => {
+        finishLoading();
+        setPlaying(false);
+        status.textContent = "";
+        if (playWhenReady) requestPlayback();
+      });
       widget.bind(soundcloud.Widget.Events.PLAY, () => {
         finishLoading();
         setPlaying(true);
         status.textContent = "";
       });
-      widget.bind(soundcloud.Widget.Events.PAUSE, () => setPlaying(false));
-      widget.bind(soundcloud.Widget.Events.FINISH, () => setPlaying(false));
+      function stopPlaying() {
+        setPlaying(false);
+      }
+      widget.bind(soundcloud.Widget.Events.PAUSE, stopPlaying);
+      widget.bind(soundcloud.Widget.Events.FINISH, stopPlaying);
       widget.bind(soundcloud.Widget.Events.ERROR, failPlayback);
     } catch {
       failPlayback();
     }
+  }
+
+  play.addEventListener("click", () => {
+    if (loading) return;
+    if (widget) {
+      if (play.getAttribute("aria-pressed") === "true") {
+        clearTimeout(playRetry);
+        activeWidget = null;
+        widget.pause();
+      } else requestPlayback();
+    } else preparePlayer(true);
   });
+
+  // Prepare the official widget before the first user gesture; never autoplay.
+  preparePlayer();
 }
 
 const trackList = document.querySelector(".track-list");
