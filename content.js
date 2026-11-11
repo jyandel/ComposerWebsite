@@ -61,5 +61,5 @@ const portfolioContent = {
     soundcloud: "https://soundcloud.com/jonathanyandel",
     threads: "https://www.threads.com/@jonathanyandelmusic",
   },
-  contactEmail: "",
+  contactEmail: "jonathanyandel@gmail.com",
 };
