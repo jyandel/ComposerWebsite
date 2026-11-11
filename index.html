@@ -53,8 +53,8 @@
                 <div class="track-content">
                   <button class="track-play" type="button" disabled>
                     <svg width="17" height="17" viewBox="0 0 17 17" aria-hidden="true">
-                      <path class="play-symbol" d="m3.5 6 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path class="close-symbol" d="m3.5 3.5 10 10m0-10-10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path class="play-symbol" d="M4 1v15l12-7.5z" fill="currentColor"/>
+                      <path class="pause-symbol" d="M4 1h3v15H4zm6 0h3v15h-3z" fill="currentColor"/>
                     </svg>
                   </button>
                   <div class="track-info">
@@ -68,9 +68,8 @@
                   </div>
                 </div>
               </div>
-              <div class="track-player" hidden>
-                <a class="track-fallback">Listen on SoundCloud</a>
-              </div>
+              <div class="track-player" aria-hidden="true"></div>
+              <span class="track-status" role="status"></span>
             </li>
           </template>
         </div>

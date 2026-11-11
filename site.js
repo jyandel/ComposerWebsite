@@ -32,8 +32,42 @@ async function loadTrackArtwork(cover, trackUrl) {
   }
 }
 
-function connectPlayer(row, track, index) {
+let widgetApiPromise;
+
+function loadWidgetApi() {
+  if (widgetApiPromise) return widgetApiPromise;
+
+  widgetApiPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      script.remove();
+      widgetApiPromise = null;
+      reject(new Error("SoundCloud API timed out"));
+    }, 15000);
+
+    script.src = "https://w.soundcloud.com/player/api.js";
+    script.onload = () => {
+      if (!window.SC?.Widget) {
+        script.onerror();
+        return;
+      }
+      clearTimeout(timeout);
+      resolve(window.SC);
+    };
+    script.onerror = () => {
+      clearTimeout(timeout);
+      script.remove();
+      widgetApiPromise = null;
+      reject(new Error("SoundCloud API unavailable"));
+    };
+    document.head.append(script);
+  });
+  return widgetApiPromise;
+}
+
+function connectPlayer(row, track) {
   const play = row.querySelector(".track-play");
+  const status = row.querySelector(".track-status");
   const trackUrl = httpsUrl(track.soundcloudUrl);
   const soundCloudHosts = ["soundcloud.com", "www.soundcloud.com", "api.soundcloud.com"];
   if (!trackUrl || !soundCloudHosts.includes(trackUrl.hostname)) {
@@ -42,61 +76,94 @@ function connectPlayer(row, track, index) {
   }
 
   loadTrackArtwork(row.querySelector(".track-cover"), trackUrl);
-
-  const panel = row.querySelector(".track-player");
-  panel.id = `track-player-${index + 1}`;
-  panel.querySelector(".track-fallback").href = trackUrl.href;
   const sourceLink = row.querySelector(".track-source");
   sourceLink.href = trackUrl.href;
   sourceLink.setAttribute("aria-label", `Listen to ${track.title} on SoundCloud`);
   row.querySelector(".track-source span").remove();
 
-  play.disabled = false;
-  play.setAttribute("aria-controls", panel.id);
-  play.setAttribute("aria-expanded", "false");
-  play.setAttribute("aria-label", `Open SoundCloud player for ${track.title}`);
+  let widget;
+  let iframe;
+  let loading = false;
+  let timeout;
 
-  play.addEventListener("click", () => {
-    if (!panel.hidden) {
-      panel.querySelector("iframe").remove();
-      panel.hidden = true;
-      play.setAttribute("aria-expanded", "false");
-      play.setAttribute("aria-label", `Open SoundCloud player for ${track.title}`);
+  function setPlaying(playing) {
+    play.setAttribute("aria-pressed", String(playing));
+    play.setAttribute("aria-label", `${playing ? "Pause" : "Play"} ${track.title}`);
+  }
+
+  function finishLoading() {
+    clearTimeout(timeout);
+    loading = false;
+    play.removeAttribute("aria-busy");
+  }
+
+  function failPlayback() {
+    finishLoading();
+    if (widget) {
+      Object.values(window.SC.Widget.Events).forEach(event => widget.unbind(event));
+    }
+    iframe?.remove();
+    iframe = null;
+    widget = null;
+    setPlaying(false);
+    status.textContent = `Unable to play ${track.title}. Try again or use the SoundCloud link.`;
+  }
+
+  play.disabled = false;
+  setPlaying(false);
+
+  play.addEventListener("click", async () => {
+    if (loading) return;
+    if (widget) {
+      widget.toggle();
       return;
     }
 
-    const configuredEmbed = httpsUrl(track.embedUrl);
-    const playerUrl = configuredEmbed?.hostname === "w.soundcloud.com"
-      ? configuredEmbed
-      : new URL("https://w.soundcloud.com/player/");
-    if (!playerUrl.searchParams.has("url")) {
-      playerUrl.searchParams.set("url", trackUrl.href);
-    }
-    playerUrl.searchParams.set("visual", "false");
-    playerUrl.searchParams.set("show_artwork", "true");
-    playerUrl.searchParams.set("show_user", "true");
-    playerUrl.searchParams.set("color", "#445868");
-    playerUrl.searchParams.set("show_comments", "false");
-    playerUrl.searchParams.set("show_reposts", "false");
-    playerUrl.searchParams.set("single_active", "true");
+    loading = true;
+    play.setAttribute("aria-busy", "true");
+    status.textContent = `Loading ${track.title}.`;
 
-    const player = document.createElement("iframe");
-    player.className = "track-embed";
-    player.title = `SoundCloud player for ${track.title}`;
-    player.src = playerUrl.href;
-    player.loading = "lazy";
-    player.allow = "encrypted-media";
-    panel.prepend(player);
-    panel.hidden = false;
-    play.setAttribute("aria-expanded", "true");
-    play.setAttribute("aria-label", `Close SoundCloud player for ${track.title}`);
+    try {
+      const soundcloud = await loadWidgetApi();
+      const configuredEmbed = httpsUrl(track.embedUrl);
+      const playerUrl = configuredEmbed?.hostname === "w.soundcloud.com"
+        ? configuredEmbed
+        : new URL("https://w.soundcloud.com/player/");
+      if (!playerUrl.searchParams.has("url")) {
+        playerUrl.searchParams.set("url", trackUrl.href);
+      }
+      playerUrl.searchParams.set("auto_play", "true");
+      playerUrl.searchParams.set("single_active", "true");
+
+      iframe = document.createElement("iframe");
+      iframe.className = "track-embed";
+      iframe.title = `SoundCloud audio for ${track.title}`;
+      iframe.src = playerUrl.href;
+      iframe.allow = "autoplay; encrypted-media";
+      iframe.tabIndex = -1;
+      row.querySelector(".track-player").append(iframe);
+      widget = soundcloud.Widget(iframe);
+      timeout = setTimeout(failPlayback, 20000);
+
+      widget.bind(soundcloud.Widget.Events.READY, () => widget.play());
+      widget.bind(soundcloud.Widget.Events.PLAY, () => {
+        finishLoading();
+        setPlaying(true);
+        status.textContent = "";
+      });
+      widget.bind(soundcloud.Widget.Events.PAUSE, () => setPlaying(false));
+      widget.bind(soundcloud.Widget.Events.FINISH, () => setPlaying(false));
+      widget.bind(soundcloud.Widget.Events.ERROR, failPlayback);
+    } catch {
+      failPlayback();
+    }
   });
 }
 
 const trackList = document.querySelector(".track-list");
 const trackTemplate = document.querySelector("#track-template");
 
-portfolioContent.tracks.forEach((track, index) => {
+portfolioContent.tracks.forEach((track) => {
   const row = trackTemplate.content.firstElementChild.cloneNode(true);
   row.querySelector("h3").textContent = track.title;
   row.querySelector(".track-description").textContent = track.description;
@@ -111,7 +178,7 @@ portfolioContent.tracks.forEach((track, index) => {
     duration.hidden = false;
   }
 
-  connectPlayer(row, track, index);
+  connectPlayer(row, track);
   trackList.append(row);
 });
 
